@@ -13,9 +13,29 @@ class DrawView: UIView {
     var currentLines = [NSValue:Line]() // pg. 323 - Creates dict. containing instances of Line
     var finishedLines = [Line]()
     
+    // @IBInstpectable - pg. 328
+    
+    @IBInspectable var finishedLineColor: UIColor = UIColor.black {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    @IBInspectable var currentLineColor: UIColor = UIColor.red {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    @IBInspectable var lineThickness: CGFloat = 10 {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     func stroke(_ line: Line) {
         let path = UIBezierPath()
-        path.lineWidth = 10
+        path.lineWidth = lineThickness
         path.lineCapStyle = .round
         
         path.move(to: line.begin)
@@ -24,14 +44,12 @@ class DrawView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
-        // Draw finished lines in black
-        UIColor.black.setStroke()
+        finishedLineColor.setStroke()
         for line in finishedLines {
             stroke(line)
         }
         
-        // Draw current lines in red
-        UIColor.red.setStroke() // pg. 326
+        currentLineColor.setStroke()
         for (_, line) in currentLines { // pg. 326
             stroke(line)
         }
@@ -82,6 +100,15 @@ class DrawView: UIView {
                 currentLines.removeValue(forKey: key)
             }
         }
+        
+        setNeedsDisplay()
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) { // pg. 327
+        // Log statement to see the order of events
+        print(#function)
+        
+        currentLines.removeAll()
         
         setNeedsDisplay()
     }

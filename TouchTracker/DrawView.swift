@@ -12,9 +12,9 @@ class DrawView: UIView {
     
     var currentLines = [NSValue:Line]() // pg. 323 - Creates dict. containing instances of Line
     var finishedLines = [Line]()
+    var selectedLineIndex: Int? // pg. 337
     
     // @IBInstpectable - pg. 328
-    
     @IBInspectable var finishedLineColor: UIColor = UIColor.black {
         didSet {
             setNeedsDisplay()
@@ -52,6 +52,12 @@ class DrawView: UIView {
         currentLineColor.setStroke()
         for (_, line) in currentLines { // pg. 326
             stroke(line)
+        }
+        
+        if let index = selectedLineIndex { // pg. 337
+            UIColor.green.setStroke()
+            let selectedLine = finishedLines[index]
+            stroke(selectedLine)
         }
     }
     
@@ -111,5 +117,68 @@ class DrawView: UIView {
         currentLines.removeAll()
         
         setNeedsDisplay()
+    }
+    
+    required init?(coder aDecoder: NSCoder) { // Method that initiate UITapGestureRecognizer
+        super.init(coder: aDecoder)
+        
+        // Double tap initiate for clear screen - pg. 334
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self,
+                                                         action: #selector(DrawView.doubleTap(_:)))
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        doubleTapRecognizer.delaysTouchesBegan = true // pg. 335 to prevent red-dot on double tap
+        addGestureRecognizer(doubleTapRecognizer)
+        
+        // Line tap iniate for line select - pg. 336
+        let tapRecognizer = UITapGestureRecognizer(target: self,
+                                                   action: #selector(DrawView.tap(_:)))
+        tapRecognizer.delaysTouchesBegan = true
+        tapRecognizer.require(toFail: doubleTapRecognizer)
+        addGestureRecognizer(tapRecognizer)
+        
+        
+    }
+    
+    func doubleTap(_ gestureRecognizer: UITapGestureRecognizer) { // pg. 335 
+        // Method thats called double-tap occurs on an instance of DrawView
+        print("Recognized a double tap")
+        
+        selectedLineIndex = nil // To prevent index trap when clearing lines - pg. 338
+        currentLines.removeAll()
+        finishedLines.removeAll()
+        setNeedsDisplay()
+    }
+    
+    func tap(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Method thats called when line is tapped
+        print("Recognized a tap") // pg. 336
+        
+        let point = gestureRecognizer.location(in: self)
+        selectedLineIndex = indexOfLine(at: point)
+        
+        setNeedsDisplay()
+    }
+    
+    func indexOfLine(at point: CGPoint) -> Int? { // pg. 337
+        // Method that returns the index of the Line closest to a given point
+        
+        // Find a line close to the point
+        for (index, line) in finishedLines.enumerated() {
+            let begin = line.begin
+            let end = line.end
+            
+            // Check a few points on the line - stride(from:to:by:) method explained top of pg. 338
+            for t in stride(from: CGFloat(0), to: 1.0, by: 0.05) {
+                let x = begin.x + ((end.x - begin.x) * t)
+                let y = begin.y + ((end.y - begin.y) * t)
+                
+                // If the tapped point is within 20 points, let's return this line
+                if hypot(x - point.x, y - point.y) < 20.0 {
+                    return index
+                }
+            }
+        }
+        // If nothing is close enough to the tapped pointt, then we did not select a line
+        return nil
     }
 }

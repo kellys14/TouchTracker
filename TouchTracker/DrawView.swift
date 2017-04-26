@@ -5,6 +5,7 @@
 //  Created by Sean Melnick Kelly on 4/10/17.
 //  Copyright © 2017 Sean Melnick Kelly. All rights reserved.
 //
+// Commnad + F (Find) "**" for challenge work
 
 import UIKit
 
@@ -22,9 +23,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         }
     }
     var moveRecognizer: UIPanGestureRecognizer!
+    var menuBool: Bool = false // Chapter 19 Silver Challenge **
     
     // @IBInstpectable - pg. 328
     @IBInspectable var finishedLineColor: UIColor = UIColor.black {
+        // Prevents first line from being colored, but cannot comment out
         didSet {
             setNeedsDisplay()
         }
@@ -57,7 +60,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         for line in finishedLines {
             stroke(line)
             
-            // START CHAPTER 18 SILVER CHALLENGE
+            // START CHAPTER 18 SILVER CHALLENGE **
             let lineAngle = atan2(line.begin.y - line.end.y, line.begin.x - line.end.x)
             
             if lineAngle >= 0 && lineAngle < 1 {
@@ -73,7 +76,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             } else if lineAngle < -2 && lineAngle >= -3.14 {
                 UIColor.cyan.setStroke()
             }
-            // END CHAPTER 18 SILVER CHALLENGE
+            // END CHAPTER 18 SILVER CHALLENGE **
         }
         
         currentLineColor.setStroke()
@@ -89,7 +92,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        if menuBool == false {
         // Log statement to see the order of the events
         print(#function) // pg. 324
         
@@ -104,10 +107,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         
         // Flags the view to be redrawn at the end of the run loop
         setNeedsDisplay()
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        if menuBool == false {
         // Log statement to see the order of events
         print(#function)
         
@@ -117,10 +121,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         }
         
         setNeedsDisplay()
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        if menuBool == false {
         // Log statement to see the order of events
         print(#function)
         
@@ -133,7 +138,7 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
                 currentLines.removeValue(forKey: key)
             }
         }
-        
+        }
         setNeedsDisplay()
     }
     
@@ -211,9 +216,12 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
             let targetRect = CGRect(x: point.x, y: point.y, width: 2, height: 2)
             menu.setTargetRect(targetRect, in: self)
             menu.setMenuVisible(true, animated: true)
+            menuBool = true // CHAPTER 19 SILVER CHALLENGE **
+            
         } else {
             // Hide the menu if no line is selected
             menu.setMenuVisible(false, animated: true)
+            menuBool = false // CHAPTER 19 SILVER CHALLENGE **
         }
         
         setNeedsDisplay()
@@ -237,9 +245,11 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
     }
     
     func moveLine(_ gestureRecognizer: UIPanGestureRecognizer) { // pg. 345
+        
         // Method that is called when a pan(drag) occurs
         print("Recognized a pan")
         
+        if menuBool == false {
         // If a line is selected...
         if let index = selectedLineIndex {
             // When the pan recognizer changes its position...
@@ -255,13 +265,14 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
                 
                 // Resets translation to zero for next move
                 gestureRecognizer.setTranslation(CGPoint.zero, in: self)
-                
+
                 // Redraw the screen
                 setNeedsDisplay()
             }
         } else {
             // If no line is selected, do not do anything
             return
+        }
         }
     }
     

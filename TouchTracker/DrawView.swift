@@ -56,6 +56,24 @@ class DrawView: UIView, UIGestureRecognizerDelegate {
         finishedLineColor.setStroke()
         for line in finishedLines {
             stroke(line)
+            
+            // START CHAPTER 18 SILVER CHALLENGE
+            let lineAngle = atan2(line.begin.y - line.end.y, line.begin.x - line.end.x)
+            
+            if lineAngle >= 0 && lineAngle < 1 {
+                UIColor.orange.setStroke()
+            } else if lineAngle >= 1 && lineAngle < 2 {
+                UIColor.purple.setStroke()
+            } else if lineAngle >= 2 && lineAngle <= 3.14 {
+                UIColor.darkGray.setStroke()
+            } else if lineAngle < 0 && lineAngle >= -1 {
+                UIColor.magenta.setStroke()
+            } else if lineAngle < -1 && lineAngle >= -2 {
+                UIColor.yellow.setStroke()
+            } else if lineAngle < -2 && lineAngle >= -3.14 {
+                UIColor.cyan.setStroke()
+            }
+            // END CHAPTER 18 SILVER CHALLENGE
         }
         
         currentLineColor.setStroke()
